@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Abrir Chamado</title>
+    </head>
+
+    <body>
+
+        <h1>Abrir Chamado</h1>
+
+        <form method="post" action="{{ url_for('add') }}">
+            <p>Serviço: <input type="text" name="servico"></p>
+            <p>Descrição: <input type="text" name="descricao"></p>
+            <p>Matrícula: <input type="text" name="matriculaComum"></p>
+            <p>Categoria: 
+                <select name="prioridade">
+                    <option value="Alta">Problema técnico</option>
+                    <option value="Média">Solicitação de serviço</option>
+                    <option value="Baixa">Dúvida</option>
+                </select>
+            </p>
+            <p><input type="submit" value="Abrir Chamado"></p>
+            <a href="/voltar">Voltar</a>
+        </form>
+
+    </body>

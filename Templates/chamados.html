@@ -1,0 +1,44 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Chamados</title>
+    </head>
+
+    <body>
+        <!-- Botão para abrir um novo chamado -->
+        <a href="{{ url_for('add') }}" class="btn btn-primary">Abrir Chamado</a>
+
+        <a href="{{ url_for('chamados')}}"></a>
+        <h1>Histórico de Chamados</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Chamado</th>
+                    <th>Serviço</th>
+                    <th>Data/Hora</th>
+                    <th>Status</th>
+                    <th>Autor</th>
+                    <th>Prioridade</th>
+                    <th>Excluir</th>
+                    <th>Editar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for chamado in chamados %}
+                <tr>
+                    <td>{{ chamado.id }}</td>
+                    <td>{{ chamado.servico }}</td>
+                    <td>{{ chamado.data }}</td>
+                    <td>{{ chamado.status }}</td>
+                    <td>{{ chamado.matriculaComum }}</td>
+                    <td>{{ chamado.prioridade }}</td>
+                    <td><a href="/excluir/{{ chamado.id }}">Excluir</a></td>
+                    <td><a href="/editar/{{ chamado.id }}">Editar</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        
+    </body>
+</html>

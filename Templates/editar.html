@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Editar Chamado</title>
+    </head>
+
+
+    <body>
+        <h1>Editar Chamado</h1>
+
+        <form method="post" action="{{ url_for('editar', id=chamado.id) }}">
+            <p>Serviço: <input type="text" name="servico" ></p>
+            <p>Descrição: <input type="text" name="descricao" value="{{ chamado.descricao }}"></p>
+            <p>Categoria: 
+                <select name="prioridade">
+                    <option value="Alta" {% if chamado.prioridade == 'Alta' %}selected{% endif %}>Problema técnico</option>
+                    <option value="Média" {% if chamado.prioridade == 'Média' %}selected{% endif %}>Solicitação de serviço</option>
+                    <option value="Baixa" {% if chamado.prioridade == 'Baixa' %}selected{% endif %}>Dúvida</option>
+                </select> 
+            </p>
+            <p>Status:
+                <select name="status">
+                    <option value="Aberto" {% if chamado.status == 'Aberto' %}selected{% endif %}>Aberto</option>
+                    <option value="Fechado" {% if chamado.status == 'Fechado' %}selected{% endif %}>Fechado</option>
+                </select>
+            </p>
+            <p><input type="submit" value="Atualizar Chamado"></p>
+            <a href="/voltar">Voltar</a>
+        </form>
+
+
+
+    </body>
+</html>
