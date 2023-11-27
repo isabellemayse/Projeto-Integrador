@@ -1,25 +1,127 @@
-
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8" />
         <title>Chamados</title>
+        <style>
+            body {
+                font-family: 'Arial', sans-serif;
+                background-color: #f8f9fa;
+                color: #333;
+                margin: 0;
+                padding: 0;
+            }
+
+            h1 {
+                text-align: center;
+                color: #333;
+                margin-bottom: 20px;
+            }
+
+            a {
+                display: block;
+                margin-top: 20px;
+                text-align: center;
+                color: #007bff;
+                text-decoration: none;
+            }
+
+            p {
+                text-align: center;
+            }
+
+            form {
+                margin-top: 20px;
+                text-align: center;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+
+            th, td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+
+            th {
+                background-color: #007bff;
+                color: white;
+            }
+
+            tbody tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            .alert {
+                padding: 15px;
+                margin-bottom: 20px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+
+            .alert-success {
+                background-color: #d4edda;
+                color: #155724;
+            }
+
+            .alert-error {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+        </style>
     </head>
 
     <body>
         <!-- Botão para abrir um novo chamado -->
         <a href="{{ url_for('add') }}" class="btn btn-primary">Abrir Chamado</a>
 
-        <a href="{{ url_for('chamados')}}"></a>
+        <!-- Botão para logout-->
+        <a href="{{ url_for('logout') }}" class="btn btn-primary">Logout</a>
+
+        {% if nome_usuario %}
+            <p>Bem-vindo, {{ nome_usuario }}!</p>
+        {% endif %}
+
         <h1>Histórico de Chamados</h1>
+
+        <form method="GET" action="{{ url_for('chamados') }}">
+            <label for="prioridade">Filtrar por Prioridade:</label>
+            <select name="prioridade" id="prioridade">
+                <option value="">Todas</option>
+                <option value="Baixa">Baixa</option>
+                <option value="Média">Média</option>
+                <option value="Alta">Alta</option>
+            </select>
+
+            <button type="submit">Buscar</button>
+        </form>
+        
+        <!-- filtro por status -->
+        <form method="GET" action="{{ url_for('chamados') }}">
+            <label for="status">Filtrar por Status:</label>
+            <select name="status" id="status">
+                <option value="">Todos</option>
+                <option value="Aberto">Aberto</option>
+                <option value="Fechado">Fechado</option>
+            </select>
+
+            <button type="submit">Buscar</button>
+        </form>
+        
         <table>
             <thead>
                 <tr>
                     <th>Chamado</th>
                     <th>Serviço</th>
+                    <th>Descrição</th>
                     <th>Data/Hora</th>
                     <th>Status</th>
-                    <th>Autor</th>
+                    <th>Matrícula</th>
+                    <th>Nome</th>
                     <th>Prioridade</th>
                     <th>Excluir</th>
                     <th>Editar</th>
@@ -30,15 +132,27 @@
                 <tr>
                     <td>{{ chamado.id }}</td>
                     <td>{{ chamado.servico }}</td>
-                    <td>{{ chamado.data }}</td>
+                    <td>{{ chamado.descricao }}</td>
+                    <td>{{ chamado.data.strftime('%d/%m/%Y %H:%M:%S') }}</td>
                     <td>{{ chamado.status }}</td>
                     <td>{{ chamado.matriculaComum }}</td>
+                    <td>{{ chamado.usuarioComum.nome }}</td>
                     <td>{{ chamado.prioridade }}</td>
                     <td><a href="/excluir/{{ chamado.id }}">Excluir</a></td>
                     <td><a href="/editar/{{ chamado.id }}">Editar</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
-        
+        </table>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
     </body>
 </html>

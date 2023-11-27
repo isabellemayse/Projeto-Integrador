@@ -3,16 +3,75 @@
     <head>
         <meta charset="utf-8" />
         <title>Abrir Chamado</title>
+        <style>
+            body {
+                font-family: 'Arial', sans-serif;
+                background-color: #f8f9fa;
+                color: #333;
+                margin: 0;
+                padding: 0;
+            }
+
+            h1 {
+                text-align: center;
+                color: #333;
+                margin-bottom: 20px;
+            }
+
+            form {
+                max-width: 600px;
+                margin: 0 auto;
+            }
+
+            p {
+                margin-bottom: 15px;
+            }
+
+            select, input {
+                width: 100%;
+                padding: 8px;
+                margin-top: 5px;
+            }
+
+            input[type="submit"] {
+                background-color: #007bff;
+                color: white;
+                cursor: pointer;
+            }
+
+            a {
+                display: block;
+                margin-top: 20px;
+                text-align: center;
+                color: #007bff;
+                text-decoration: none;
+            }
+
+            .alert {
+                padding: 15px;
+                margin-bottom: 20px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+            }
+
+            .alert-success {
+                background-color: #d4edda;
+                color: #155724;
+            }
+
+            .alert-error {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+        </style>
     </head>
 
     <body>
-
         <h1>Abrir Chamado</h1>
 
         <form method="post" action="{{ url_for('add') }}">
             <p>Serviço: <input type="text" name="servico"></p>
             <p>Descrição: <input type="text" name="descricao"></p>
-            <p>Matrícula: <input type="text" name="matriculaComum"></p>
             <p>Categoria: 
                 <select name="prioridade">
                     <option value="Alta">Problema técnico</option>
@@ -24,4 +83,15 @@
             <a href="/voltar">Voltar</a>
         </form>
 
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
     </body>
+</html>
+

@@ -1,24 +1,104 @@
-#criar pagina de login para ser usado com flask-login
-
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8" />
-        <title>Página de Login</title>
-    </head>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Login</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
-    <body>
-        <h1>Login</h1>
-        
-        <form method="post" action="/login">
-            Matrícula: <input type="text" name="matricula">
-            Senha: <input type="password" name="senha">
-            <input type="submit" value="Login">
-        </form>
-        
-        <a>Recuperar Acesso</a>
-    </body>
+        h1 {
+            text-align: center;
+            color: #333;
+        }
 
+        form {
+            text-align: center;
+        }
 
+        input {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
 
+        input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #28a745;
+        }
+
+        .alert-error {
+            background-color: #ffcccc;
+            color: #cc0000;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Login</h1>
+
+    <form method="post" action="/login">
+        <label for="matricula">Matrícula:</label>
+        <input type="text" name="matricula" id="matricula">
+
+        <label for="senha">Senha:</label>
+        <input type="password" name="senha" id="senha">
+
+        <input type="submit" value="Login">
+    </form>
+
+    <a href="#">Recuperar Acesso</a>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</body>
 </html>
+
