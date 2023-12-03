@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
@@ -19,6 +19,39 @@ class LoginUsuarioComum(db.Model): #classe para o login do usuario comum
         self.nome = nome
         self.senha = senha
 
+class Categoria(db.Model): #classe para as categorias
+    __tablename__ = 'categorias'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String)
+    subcategorias = db.relationship('Subcategoria', backref='categoria', lazy=True) #relacionamento com a tabela subcategorias
+
+    def __init__(self, nome):
+        self.nome = nome
+
+class Subcategoria(db.Model): #classe para as subcategorias
+    __tablename__ = 'subcategorias'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String)
+    categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=False) #relacionamento com a tabela categorias
+    Subcategoria2 = db.relationship('Subcategoria2', backref='subcategoria', lazy=True) #relacionamento com a tabela subcategorias2
+
+    def __init__(self, nome, categoria_id):
+        self.nome = nome
+        self.categoria_id = categoria_id 
+
+class Subcategoria2(db.Model): #classe para as subcategorias 2
+    __tablename__ = 'subcategorias2'
+
+    id = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String)
+    subcategoria_id = db.Column(db.Integer, db.ForeignKey('subcategorias.id'), nullable=False) #relacionamento com a tabela subcategorias
+
+    def __init__(self, nome, subcategoria_id):
+        self.nome = nome
+        self.subcategoria_id = subcategoria_id
+
 class Chamados(db.Model): #classe para os chamados
     __tablename__ = 'chamados'
 
@@ -30,14 +63,24 @@ class Chamados(db.Model): #classe para os chamados
     usuarioComum = db.relationship('LoginUsuarioComum', foreign_keys=matriculaComum)
     data = db.Column(db.DateTime, default=datetime.now())
     prioridade = db.Column(db.String)
+    categoria_id = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=False)
+    subcategoria_id = db.Column(db.Integer, db.ForeignKey('subcategorias.id'), nullable=False)
+    subcategoria2_id = db.Column(db.Integer, db.ForeignKey('subcategorias2.id'), nullable=False)
 
-    def __init__(self, servico, descricao, status, matriculaComum, data, prioridade):
+    categoria = db.relationship('Categoria', foreign_keys=categoria_id) #relacionamento com a tabela categorias
+    subcategoria = db.relationship('Subcategoria', foreign_keys=subcategoria_id) #relacionamento com a tabela subcategorias
+    subcategoria2 = db.relationship('Subcategoria2', foreign_keys=subcategoria2_id) #relacionamento com a tabela subcategorias2
+
+    def __init__(self, servico, descricao, status, matriculaComum, data, prioridade, categoria_id, subcategoria_id, subcategoria2_id):
         self.servico = servico
         self.descricao = descricao
         self.status = status
         self.matriculaComum = matriculaComum
         self.data = data or datetime.now()
         self.prioridade = prioridade
+        self.categoria_id = categoria_id
+        self.subcategoria_id = subcategoria_id
+        self.subcategoria2_id = subcategoria2_id
 
 with app.app_context(): #cria o banco de dados
     db.create_all()
@@ -48,7 +91,7 @@ admin = False #variavel para verificar se o usuario é admin ou não
 def index():
     global admin #variavel global para verificar se o usuario é admin ou não
     admin = False 
-    return render_template('login.html')
+    return render_template('login.html') #pagina inicial
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -99,24 +142,60 @@ def chamados():
 
 @app.route('/chamados/add', methods=['GET', 'POST'])
 def add():
+    categorias = Categoria.query.all()  # pegar todas as categorias do banco de dados
+
     if request.method == 'POST':
         servico = request.form['servico']
         descricao = request.form['descricao']
-        status = "Aberto" #status padrão
-        matriculaComum = session.get('matricula_atual') #matricula do usuario logado
+        status = "Aberto"  # status padrão
+        matriculaComum = session.get('matricula_atual')  # matricula do usuario logado
         data = datetime.now()
         prioridade = request.form['prioridade']
-        novo_chamado = Chamados(servico, descricao, status, matriculaComum, data, prioridade)
+        categoria_id = request.form['categoria']
+        subcategoria_id = request.form['subcategoria']
+
+        # Verifique se a chave 'subcategoria2' está presente nos dados do formulário
+        subcategoria2_id = request.form.get('subcategoria2')
+
+        novo_chamado = Chamados(
+            servico, descricao, status, matriculaComum, data, prioridade,
+            categoria_id, subcategoria_id, subcategoria2_id
+        ) # cria um novo chamado
         db.session.add(novo_chamado)
         db.session.commit()
         flash('Chamado adicionado com sucesso!', 'success')
         return redirect(url_for('chamados'))
 
-    return render_template('add.html')
+    return render_template('add.html', categorias=categorias) 
+
+@app.route('/get_categorias') #obtem as categorias
+def get_categorias():
+    try: 
+        categorias = Categoria.query.all() #pega todas as categorias do banco de dados
+        categorias_data = [{'id': cat.id, 'nome': cat.nome} for cat in categorias] #cria um dicionario com as categorias
+        return jsonify(categorias_data) #retorna as categorias em formato json
+    except Exception as e: 
+        print(f"Erro ao obter categorias: {e}") #se der erro, retorna uma mensagem de erro
+        return jsonify({'error': 'Erro interno do servidor'}), 500 #retorna o erro 500
+
+@app.route('/get_subcategorias/<int:categoria_id>') #obtem as subcategorias
+def get_subcategorias(categoria_id): 
+    subcategorias = Subcategoria.query.filter_by(categoria_id=categoria_id).all() #pega todas as subcategorias do banco de dados
+    subcategorias_data = [{'id': sub.id, 'nome': sub.nome} for sub in subcategorias] #cria um dicionario com as subcategorias
+    return jsonify(subcategorias_data) #retorna as subcategorias em formato json
+
+@app.route('/get_subcategoria2/<int:subcategoria_id>') #obtem as subcategorias2
+def get_subcategorias2(subcategoria_id):
+    try:
+        subcategoria2 = Subcategoria2.query.filter_by(subcategoria_id=subcategoria_id).all() #pega todas as subcategorias2 do banco de dados
+        return jsonify([{'id': sub2.id, 'nome': sub2.nome} for sub2 in subcategoria2]) #cria um dicionario com as subcategorias2 e retorna em formato json
+    except Exception as e:
+        print(f"Erro ao obter subcategorias2: {e}")
+        return jsonify({'error': 'Erro interno do servidor'}), 500
 
 @app.route('/excluir/<int:id>') #exclui o chamado
 def excluir(id):
-    matricula_atual = session.get('matricula_atual')
+    matricula_atual = session.get('matricula_atual') #matricula do usuario logado
     chamado = Chamados.query.get(id)
    
     if matricula_atual == '9999': #verifica se o usuario é admin, se for deve excluir qkla chamado
@@ -135,14 +214,18 @@ def excluir(id):
 
 @app.route('/editar/<int:id>', methods=['GET', 'POST']) #edita o chamado
 def editar(id):
-    matricula_atual = session.get('matricula_atual')
-    chamado = Chamados.query.get(id)
+    matricula_atual = session.get('matricula_atual') #matricula do usuario logado
+    chamado = Chamados.query.get(id) #pega o chamado do banco de dados
 
     if request.method == 'POST' and matricula_atual == '9999': #se o usuario for admin, permite editar todos os campos
         chamado.servico = request.form['servico']
-        chamado.descricao = request.form['descricao']
         chamado.prioridade = request.form['prioridade']
+        chamado.descricao = request.form['descricao']
+        chamado.categoria_id = request.form['categoria']
+        chamado.subcategoria_id = request.form['subcategoria']
+        chamado.subcategoria2_id = request.form['subcategoria2']
         chamado.status = request.form['status'] #altera o status somente para o adm
+        
 
         db.session.commit()
         flash('Chamado editado com sucesso!', 'success')
@@ -150,8 +233,11 @@ def editar(id):
     
     elif request.method == 'POST' and (str(chamado.matriculaComum) == matricula_atual): #usuario criador do chamado
         chamado.servico = request.form['servico']
-        chamado.descricao = request.form['descricao']
         chamado.prioridade = request.form['prioridade']
+        chamado.descricao = request.form['descricao']
+        chamado.categoria_id = request.form['categoria']
+        chamado.subcategoria_id = request.form['subcategoria']
+        chamado.subcategoria2_id = request.form['subcategoria2']
 
         db.session.commit()
         flash('Chamado editado com sucesso!', 'success')

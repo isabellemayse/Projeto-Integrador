@@ -71,14 +71,14 @@
 
         <form method="post" action="{{ url_for('editar', id=chamado.id) }}">
             <p>Serviço: <input type="text" name="servico" value="{{ chamado.servico }}" ></p>
-            <p>Descrição: <input type="text" name="descricao" value="{{ chamado.descricao }}"></p>
-            <p>Categoria: 
+            <p>Tipo de Serviço: 
                 <select name="prioridade">
                     <option value="Alta" {% if chamado.prioridade == 'Alta' %}selected{% endif %}>Problema técnico</option>
                     <option value="Média" {% if chamado.prioridade == 'Média' %}selected{% endif %}>Solicitação de serviço</option>
                     <option value="Baixa" {% if chamado.prioridade == 'Baixa' %}selected{% endif %}>Dúvida</option>
                 </select> 
             </p>
+            <p>Descrição: <input type="text" name="descricao" value="{{ chamado.descricao }}"></p>
             {% if session.get('matricula_atual') == '9999' %}
                 <p>Status:
                     <select name="status">
@@ -87,6 +87,124 @@
                     </select>
                 </p>
             {% endif %}
+
+
+            <label for="categoria">Categoria:</label>
+            <select name="categoria" id="categoria" onchange="updateSubcategorias()">
+                {% for categoria in categorias %}
+                    <option value="{{ categoria.id }}" {% if chamado.categoria_id == categoria.id %}selected{% endif %}>
+                        {{ categoria.nome }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="subcategoria">Subcategoria:</label>
+            <select name="subcategoria" id="subcategoria" onchange="updateSubcategorias2()">
+                {% if chamado.categoria %}
+                    {% for subcategoria in chamado.categoria.subcategorias %}
+                        <option value="{{ subcategoria.id }}" {% if chamado.subcategoria_id == subcategoria.id %}selected{% endif %}>
+                            {{ subcategoria.nome }}
+                        </option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+
+            <label for="subcategoria2">Subcategoria2:</label>
+            <select name="subcategoria2" id="subcategoria2">
+                {% if chamado.subcategoria %}
+                    {% for subcategoria2 in chamado.subcategoria.subcategoria2 %}
+                        <option value="{{ subcategoria2.id }}" {% if chamado.subcategoria2_id == subcategoria2.id %}selected{% endif %}>
+                            {{ subcategoria2.nome }}
+                        </option>
+                    {% endfor %}
+                {% endif %}
+            </select>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    // Carregar categorias na inicialização
+                    updateCategorias();
+
+                    // Carregar subcategorias e subcategorias2 na inicialização, se as respectivas categorias e subcategorias estiverem selecionadas
+                    updateSubcategorias();
+                    updateSubcategorias2();
+                });
+
+                function updateCategorias() {
+                    fetch(`/get_categorias`)
+                        .then(response => response.json())
+                        .then(categorias => {
+                            var categoriaSelect = document.getElementById('categoria');
+                            categoriaSelect.innerHTML = "";
+
+                            categorias.forEach(cat => {
+                                var option = document.createElement('option');
+                                option.value = cat.id;
+                                option.text = cat.nome;
+                                categoriaSelect.add(option);
+                            });
+
+                            // Habilitar a seleção da categoria
+                            categoriaSelect.disabled = false;
+                        })
+                        .catch(error => {
+                            console.error('Erro ao obter categorias:', error);
+                        });
+                }
+
+                function updateSubcategorias() {
+                    var categoriaId = document.getElementById('categoria').value;
+
+                    fetch(`/get_subcategorias/${categoriaId}`)
+                        .then(response => response.json())
+                        .then(subcategorias => {
+                            var subcategoriaSelect = document.getElementById('subcategoria');
+                            subcategoriaSelect.innerHTML = "";
+
+                            subcategorias.forEach(sub => {
+                                var option = document.createElement('option');
+                                option.value = sub.id;
+                                option.text = sub.nome;
+                                subcategoriaSelect.add(option);
+                            });
+
+                            // Habilitar a seleção da subcategoria
+                            subcategoriaSelect.disabled = false;
+                        });
+                }
+
+                function updateSubcategorias2() {
+                    var subcategoriaId = document.getElementById('subcategoria').value;
+
+                    fetch(`/get_subcategoria2/${subcategoriaId}`)
+                        .then(response => response.json())
+                        .then(subcategorias2 => {
+                            var subcategoria2Select = document.getElementById('subcategoria2');
+
+                            // Limpar as opções existentes
+                            subcategoria2Select.innerHTML = "";
+
+                            // Verificar se a resposta possui dados
+                            if (subcategorias2 && subcategorias2.length > 0) {
+                                subcategorias2.forEach(sub2 => {
+                                    var option = document.createElement('option');
+                                    option.value = sub2.id;
+                                    option.text = sub2.nome;
+                                    subcategoria2Select.add(option);
+                                });
+
+                                // Habilitar a seleção da subcategoria2
+                                subcategoria2Select.disabled = false;
+                            } else {
+                                // Desabilitar a seleção se não houver subcategorias2
+                                subcategoria2Select.disabled = true;
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro ao obter subcategorias2:', error);
+                        });
+                }
+            </script>
 
             <p><input type="submit" value="Atualizar Chamado"></p>
             <a href="/voltar">Voltar</a>

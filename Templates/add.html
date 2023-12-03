@@ -71,14 +71,94 @@
 
         <form method="post" action="{{ url_for('add') }}">
             <p>Serviço: <input type="text" name="servico"></p>
-            <p>Descrição: <input type="text" name="descricao"></p>
-            <p>Categoria: 
+            <p>Tipo de Serviço: 
                 <select name="prioridade">
-                    <option value="Alta">Problema técnico</option>
-                    <option value="Média">Solicitação de serviço</option>
+                    <option value="Alta">Problema Técnico</option>
+                    <option value="Média">Solicitação de Serviço</option>
                     <option value="Baixa">Dúvida</option>
                 </select>
-            </p>
+            <p>Descrição: <input type="text" name="descricao"></p>
+
+            <label for="categoria">Categoria:</label> <!-- botão de categoria -->
+            <select name="categoria" id="categoria" onchange="updateSubcategorias()">
+                {% for categoria in categorias %}
+                    <option value="{{ categoria.id }}">{{ categoria.nome }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="subcategoria">Subcategoria:</label> <!-- botão de subcategori -->
+            <select name="subcategoria" id="subcategoria" onchange="updateSubcategorias2()">
+            </select>
+
+            <label for="subcategoria2">Subcategoria2:</label> <!-- botão de subcati2 -->
+            <select name="subcategoria2" id="subcategoria2">
+            </select>
+
+            <script>
+                function updateSubcategorias() { // função para atualizar as subcategorias
+                    var categoriaId = document.getElementById('categoria').value; // pegar o valor da categoria
+                    console.log("Categoria selecionada: " + categoriaId); // mostrar no console o valor da categoria
+            
+                    fetch(`/get_subcategorias/${categoriaId}`) // pegar as subcategorias
+                        .then(response => response.json()) // converter a resposta para JSON
+                        .then(subcategorias => { // pegar as subcategorias
+                            var subcategoriaSelect = document.getElementById('subcategoria'); // pegar o botão de subcategoria
+                            subcategoriaSelect.innerHTML = ""; // limpar as opções de subcategoria
+            
+                            subcategorias.forEach(sub => { // para cada subcategoria
+                                var option = document.createElement('option'); // criar uma opção
+                                option.value = sub.id; // valor da opção
+                                option.text = sub.nome; // texto da opção
+                                subcategoriaSelect.add(option); // adicionar a opção
+                            });
+            
+                           
+                            subcategoriaSelect.disabled = false; // habilitar a seleção da subcategoria
+            
+                            // Limpar as opções de subcategoria2 quando a subcategoria1 muda
+                            var subcategoria2Select = document.getElementById('subcategoria2'); // pegar o botão de subcategoria2
+                            subcategoria2Select.innerHTML = ""; // limpar as opções de subcategoria2
+                            subcategoria2Select.disabled = true;    // desabilitar a seleção da subcategoria2
+                        });
+                }
+            
+                function updateSubcategorias2() {
+                    var subcategoriaId = document.getElementById('subcategoria').value;
+                    console.log("Subcategoria selecionada: " + subcategoriaId);
+
+                    if (subcategoriaId) {
+                        fetch(`/get_subcategoria2/${subcategoriaId}`)
+                            .then(response => response.json())
+                            .then(subcategorias2 => {
+                                var subcategoria2Select = document.getElementById('subcategoria2');
+                                
+                                // Limpar as opções existentes
+                                subcategoria2Select.innerHTML = "";
+
+                                // Verificar se a resposta possui dados
+                                if (subcategorias2 && subcategorias2.length > 0) {
+                                    subcategorias2.forEach(sub2 => {
+                                        var option = document.createElement('option');
+                                        option.value = sub2.id;
+                                        option.text = sub2.nome;
+                                        subcategoria2Select.add(option);
+                                    });
+
+                                    // Habilitar a seleção da subcategoria2
+                                    subcategoria2Select.disabled = false;
+                                } else {
+                                    // Desabilitar a seleção se não houver subcategorias2
+                                    subcategoria2Select.disabled = true;
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Erro ao obter subcategorias2:', error);
+                            });
+                    }
+                }
+            </script>
+            
+
             <p><input type="submit" value="Abrir Chamado"></p>
             <a href="/voltar">Voltar</a>
         </form>
@@ -94,4 +174,3 @@
         {% endwith %}
     </body>
 </html>
-

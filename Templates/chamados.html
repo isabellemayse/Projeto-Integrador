@@ -123,6 +123,7 @@
                     <th>Matrícula</th>
                     <th>Nome</th>
                     <th>Prioridade</th>
+                    <th>Categoria/Subcategoria</th>
                     <th>Excluir</th>
                     <th>Editar</th>
                 </tr>
@@ -138,6 +139,7 @@
                     <td>{{ chamado.matriculaComum }}</td>
                     <td>{{ chamado.usuarioComum.nome }}</td>
                     <td>{{ chamado.prioridade }}</td>
+                    <td>{{ chamado.subcategoria.categoria.nome }}/{{ chamado.subcategoria.nome }}</td>
                     <td><a href="/excluir/{{ chamado.id }}">Excluir</a></td>
                     <td><a href="/editar/{{ chamado.id }}">Editar</a></td>
                 </tr>
@@ -145,7 +147,7 @@
             </tbody>
         </table>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% with messages = get_flashed_messages(with_categories=true) %} 
             {% if messages %}
                 {% for category, message in messages %}
                     <div class="alert alert-{{ category }}">
