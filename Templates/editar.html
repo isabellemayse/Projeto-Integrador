@@ -5,13 +5,29 @@
         <title>Editar Chamado</title>
         <style>
             body {
-                font-family: 'Arial', sans-serif;
-                background-color: #f8f9fa;
+                font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial;
+                background-color: rgb(49, 154, 214);
                 color: #333;
-                margin: 0;
-                padding: 0;
+                margin: 50px;
+                padding: 50px;
+                height: 10vh;
+                display: block;
             }
 
+            .login-container {
+                background-color: #ffffff;
+                padding: 30px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .login-container input {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 1px;
+                box-sizing: border-box;
+            }
+        
             h1 {
                 text-align: center;
                 color: #333;
@@ -21,9 +37,11 @@
             form {
                 max-width: 600px;
                 margin: 0 auto;
+                
             }
 
             p {
+
                 margin-bottom: 15px;
             }
 
@@ -34,16 +52,19 @@
             }
 
             input[type="submit"] {
-                background-color: #007bff;
+                background-color: #4caf50;
                 color: white;
                 cursor: pointer;
+                padding: 10px;
+                border: none;
+                border-radius: 4px;
             }
 
             a {
                 display: block;
                 margin-top: 20px;
                 text-align: center;
-                color: #007bff;
+                color: rgb(49, 154, 214);
                 text-decoration: none;
             }
 
@@ -52,11 +73,13 @@
                 margin-bottom: 20px;
                 border: 1px solid #ddd;
                 border-radius: 4px;
+                
             }
 
             .alert-success {
                 background-color: #d4edda;
-                color: #155724;
+                color: rgb(49, 154, 214);
+
             }
 
             .alert-error {
@@ -67,7 +90,8 @@
     </head>
 
     <body>
-        <h1>Editar Chamado</h1>
+        <div class="login-container"
+        <h1>EDITAR CHAMADO</h1>
 
         <form method="post" action="{{ url_for('editar', id=chamado.id) }}">
             <p>Serviço: <input type="text" name="servico" value="{{ chamado.servico }}" ></p>

@@ -6,43 +6,69 @@
     <title>Página de Login</title>
     <style>
         body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f2f2f2;
-            margin: 0;
-            padding: 0;
+            font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans';
+            background-color: rgb(49, 154, 214);
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100vh;
+            margin: 0;
+            padding: 0;
         }
 
-        h1 {
+        .login-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             text-align: center;
-            color: #333;
         }
 
-        form {
-            text-align: center;
-        }
-
-        input {
+        .login-container label {
             display: block;
+            margin-bottom: 5px;
+        }
+
+        .login-container input {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
+            padding: 8px;
+            margin-bottom: 10px;
             box-sizing: border-box;
             border: 1px solid #ccc;
             border-radius: 4px;
         }
 
-        input[type="submit"] {
-            background-color: #007bff;
+        .login-container .botao-entrar {
+            margin-top: 18px;
+            width: 65%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .login-container button {
+            background-color: #4caf50;
             color: #fff;
+            padding: 10px;
+            width: 120px;
             border: none;
             border-radius: 4px;
-            padding: 10px;
             cursor: pointer;
+        }
+
+        .login-container button:hover {
+            background-color: #45a049;
+        }
+
+        .recuperar-acesso {
+            text-align: center;
+            font-size: 11px;
+            margin-top: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            color: rgb(21, 0, 83);
+            font-size: 30px;
         }
 
         a {
@@ -50,45 +76,34 @@
             text-align: center;
             color: #007bff;
             text-decoration: none;
+            font-size: 11px;
+            margin-top: 10px;
         }
 
         a:hover {
             text-decoration: underline;
         }
-
-        .alert {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 4px;
-            text-align: center;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #28a745;
-        }
-
-        .alert-error {
-            background-color: #ffcccc;
-            color: #cc0000;
-        }
     </style>
 </head>
 
 <body>
-    <h1>Login</h1>
+    <div class="login-container">
+        <h1>Login</h1>
 
-    <form method="post" action="/login">
-        <label for="matricula">Matrícula:</label>
-        <input type="text" name="matricula" id="matricula">
+        <form method="post" action="/login">
+            <label for="matricula">Matrícula:</label>
+            <input type="text" name="matricula" id="matricula" required>
 
-        <label for="senha">Senha:</label>
-        <input type="password" name="senha" id="senha">
+            <label for="senha">Senha:</label>
+            <input type="password" name="senha" id="senha" required>
 
-        <input type="submit" value="Login">
-    </form>
+            <div class="botao-entrar">
+                <button type="submit">Login</button>
+            </div>
+        </form>
 
-    <a href="#">Recuperar Acesso</a>
+        <p class="recuperar-acesso"><a href="#">Recuperar Acesso</a></p>
+    </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
@@ -101,4 +116,5 @@
     {% endwith %}
 </body>
 </html>
+
 

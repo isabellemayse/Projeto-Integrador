@@ -82,10 +82,58 @@ class Chamados(db.Model): #classe para os chamados
         self.subcategoria_id = subcategoria_id
         self.subcategoria2_id = subcategoria2_id
 
+    @staticmethod
+    def calcular_pontuacao(categoria_id, subcategoria_id, subcategoria2_id): #função para calcular a pontuação do chamado
+        pontuacao = 0 #pontuação inicial
+
+        categoria_id = int(categoria_id) #converte para inteiro
+        subcategoria_id = int(subcategoria_id)
+        subcategoria2_id = int(subcategoria2_id)
+
+        # Lógica de pontuação para a tabela de categoria
+        if categoria_id == 1:
+            pontuacao += 20
+        elif categoria_id == 2:
+            pontuacao += 20
+
+        # Lógica de pontuação para a tabela de subcategoria
+        if subcategoria_id == 22 or subcategoria_id == 12:
+            pontuacao += 30
+        elif subcategoria_id == 21 or subcategoria_id == 11 or subcategoria_id == 13 or subcategoria_id == 23:
+            pontuacao += 20
+        elif subcategoria_id == 24 or subcategoria_id == 25:
+            pontuacao += 10
+
+        # Lógica de pontuação para a tabela de subcategoria2
+        if subcategoria2_id in [216, 217, 218, 111,113,114,116,117,211,212,213,215,216,217,218]:
+            pontuacao += 20
+        elif subcategoria2_id in [112, 115, 214]:
+            pontuacao += 30
+        elif subcategoria2_id in [219,220]:
+            pontuacao += 10
+
+        print(f"Após Categoria: {pontuacao}") #so pra eu conferir como ficnou
+
+        return pontuacao
+
 with app.app_context(): #cria o banco de dados
     db.create_all()
 
 admin = False #variavel para verificar se o usuario é admin ou não
+
+def calcular_prioridade(valores_formulario): #função para calcular a prioridade do chamado
+    pontuacao = Chamados.calcular_pontuacao( #chama a função calcular_pontuacao
+        valores_formulario['categoria_id'],
+        valores_formulario['subcategoria_id'],
+        valores_formulario['subcategoria2_id']
+    )
+
+    if pontuacao >= 80: #verifica a pontuação e retorna a prioridade
+        return 'Alta'
+    elif 50 <= pontuacao <= 70:
+        return 'Média'
+    else:
+        return 'Baixa'
 
 @app.route('/')
 def index():
@@ -142,31 +190,36 @@ def chamados():
 
 @app.route('/chamados/add', methods=['GET', 'POST'])
 def add():
-    categorias = Categoria.query.all()  # pegar todas as categorias do banco de dados
+    categorias = Categoria.query.all() #pega todas as categorias do banco de dados
 
-    if request.method == 'POST':
-        servico = request.form['servico']
-        descricao = request.form['descricao']
-        status = "Aberto"  # status padrão
-        matriculaComum = session.get('matricula_atual')  # matricula do usuario logado
+    if request.method == 'POST': #se o metodo for post, adiciona o chamado no banco de dados
+        servico = request.form['servico'] #pega os dados do formulario
+        descricao = request.form['descricao'] 
+        status = "Aberto"
+        matriculaComum = session.get('matricula_atual')
         data = datetime.now()
-        prioridade = request.form['prioridade']
+
+        # Altere esta parte para garantir que você está passando os dados corretos
         categoria_id = request.form['categoria']
         subcategoria_id = request.form['subcategoria']
-
-        # Verifique se a chave 'subcategoria2' está presente nos dados do formulário
         subcategoria2_id = request.form.get('subcategoria2')
 
+        prioridade = calcular_prioridade({ #chama a função calcular_prioridade
+            'categoria_id': categoria_id,
+            'subcategoria_id': subcategoria_id,
+            'subcategoria2_id': subcategoria2_id
+        })
+
         novo_chamado = Chamados(
-            servico, descricao, status, matriculaComum, data, prioridade,
-            categoria_id, subcategoria_id, subcategoria2_id
-        ) # cria um novo chamado
+            servico, descricao, status, matriculaComum, data, prioridade, categoria_id, subcategoria_id, subcategoria2_id
+        ) #cria o novo chamado
         db.session.add(novo_chamado)
         db.session.commit()
         flash('Chamado adicionado com sucesso!', 'success')
         return redirect(url_for('chamados'))
 
-    return render_template('add.html', categorias=categorias) 
+    return render_template('add.html', categorias=categorias)
+
 
 @app.route('/get_categorias') #obtem as categorias
 def get_categorias():
@@ -225,7 +278,12 @@ def editar(id):
         chamado.subcategoria_id = request.form['subcategoria']
         chamado.subcategoria2_id = request.form['subcategoria2']
         chamado.status = request.form['status'] #altera o status somente para o adm
-        
+
+        chamado.prioridade = calcular_prioridade({
+            'categoria_id': chamado.categoria_id,
+            'subcategoria_id': chamado.subcategoria_id,
+            'subcategoria2_id': chamado.subcategoria2_id
+        })
 
         db.session.commit()
         flash('Chamado editado com sucesso!', 'success')
@@ -238,6 +296,12 @@ def editar(id):
         chamado.categoria_id = request.form['categoria']
         chamado.subcategoria_id = request.form['subcategoria']
         chamado.subcategoria2_id = request.form['subcategoria2']
+
+        chamado.prioridade = calcular_prioridade({
+            'categoria_id': chamado.categoria_id,
+            'subcategoria_id': chamado.subcategoria_id,
+            'subcategoria2_id': chamado.subcategoria2_id
+        })
 
         db.session.commit()
         flash('Chamado editado com sucesso!', 'success')

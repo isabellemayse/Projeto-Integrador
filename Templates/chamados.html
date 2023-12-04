@@ -5,24 +5,42 @@
         <title>Chamados</title>
         <style>
             body {
-                font-family: 'Arial', sans-serif;
-                background-color: #f8f9fa;
+                font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial;
+                background-color:rgb(49, 154, 214);
                 color: #333;
-                margin: 0;
-                padding: 0;
+                margin: 10px;
+                padding: 5px;
+                height: 100vh;
+                display: block;
+                text-align: center;
+            }
+
+            .login-container {
+                background-color: #ffffff;
+                padding: 3px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            
+            .login-container input {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 1px;
+                box-sizing: border-box;
             }
 
             h1 {
                 text-align: center;
                 color: #333;
-                margin-bottom: 20px;
+                margin-bottom: px;
+                background-color:#dbdada
             }
 
             a {
                 display: block;
                 margin-top: 20px;
                 text-align: center;
-                color: #007bff;
+                color: rgb(49, 154, 214);
                 text-decoration: none;
             }
 
@@ -33,33 +51,37 @@
             form {
                 margin-top: 20px;
                 text-align: center;
+                
             }
 
             table {
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 20px;
+                background-color:rgb(216, 213, 213)
+                
             }
 
             th, td {
                 border: 1px solid #ddd;
-                padding: 8px;
-                text-align: left;
+                text-align: center;
+                padding: 5px;
+                
             }
 
             th {
-                background-color: #007bff;
+                background-color: rgb(25, 84, 118);
                 color: white;
             }
 
             tbody tr:nth-child(even) {
-                background-color: #f2f2f2;
+                background-color: #a8a8a8;
             }
 
             .alert {
                 padding: 15px;
                 margin-bottom: 20px;
-                border: 1px solid #ddd;
+                border: 1px solid #a8a8a8;
                 border-radius: 4px;
             }
 
@@ -72,10 +94,26 @@
                 background-color: #f8d7da;
                 color: #721c24;
             }
+
+            button  {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 5px;
+            width: 75px;;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            }
+
+            button:hover {
+            background-color: #45a049;
+        }
+            
         </style>
     </head>
 
     <body>
+        <div class="login-container">
         <!-- Botão para abrir um novo chamado -->
         <a href="{{ url_for('add') }}" class="btn btn-primary">Abrir Chamado</a>
 
@@ -86,7 +124,7 @@
             <p>Bem-vindo, {{ nome_usuario }}!</p>
         {% endif %}
 
-        <h1>Histórico de Chamados</h1>
+        <h1>HISTÓRICO DE CHAMADOS</h1>
 
         <form method="GET" action="{{ url_for('chamados') }}">
             <label for="prioridade">Filtrar por Prioridade:</label>
